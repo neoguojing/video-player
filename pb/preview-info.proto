@@ -1,0 +1,481 @@
+syntax = "proto3";
+
+package pb;
+
+option go_package = "videoplayer/pb";
+
+// Standalone proto for frontend.
+
+// 二维图像坐标, 注意: 坐标系与输入图像相同 [SINCE v1.3.0].
+// [EN] Coordinates of two-dimensional image. Note: the coordinate system is the same as the input image [SINCE v1.3.0].
+message Vertex {
+  int32 x = 1;
+  int32 y = 2;
+}
+
+// 目标检测结果多边形边界 [SINCE v1.3.0].
+// [EN] Bounding poly for target detection result [SINCE v1.3.0].
+message BoundingPoly { repeated Vertex vertices = 1; }
+
+// 角度 [SINCE v1.3.0].
+// [EN] angle [SINCE v1.3.0].
+message Angle {
+  // 对象姿态变化角度, 单位是度.
+  // [EN] Yawing angle, with the unit - degree.
+  float yaw = 1;
+  // 对象俯仰变化角度, 单位是度.
+  // [EN] Pitching angle, with the unit - degree.
+  float pitch = 2;
+  // 对象平面旋转角度, 单位是度.
+  // [EN] Rolling angle, with the unit - degree.
+  float roll = 3;
+}
+
+// 二维图像大小 [SINCE v2.0.0].
+// [EN] The size of two-dimensional image [SINCE v2.0.0].
+message Size {
+  int32 width = 1;
+  int32 height = 2;
+}
+
+// 二维图像向量. 注意: 坐标系与输入图像相同 [SINCE v2.2.0].
+// [EN] Vectors of tw-dimensional image. Note: the coordinate system is the same as the input image [SINCE v2.2.0].
+message Vector {
+  float x = 1;
+  float y = 2;
+}
+
+// 跟踪事件.
+// [EN] Track event.
+enum TrackEvent {
+  // 跟踪中.
+  // [EN] Tracking.
+  ONGOING = 0;
+  // 跟踪结束.
+  // [EN] End of tracking.
+  END = 1;
+  // 跟踪开始.
+  // [EN] Start tracking.
+  START = 2;
+}
+
+// VIPER平台支持物体对象类型 [SINCE v1.3.0].
+// [EN] VIPER object types [SINCE v1.3.0].
+enum ObjectType {
+  // 未知.
+  // [EN] unknown.
+  OBJECT_UNKNOWN = 0;
+  // face. 人脸.
+  // [EN] face.
+  OBJECT_FACE = 1;
+  // pedestrian. 行人 [SINCE v1.4.0].
+  // [EN] pedestrian [SINCE v1.4.0].
+  OBJECT_PEDESTRIAN = 2;
+  // automobile. 机动车 [SINCE v1.4.0].
+  // [EN] automobile [SINCE v1.4.0].
+  OBJECT_AUTOMOBILE = 3;
+  // cyclist. 骑手 [SINCE v1.4.0].
+  // [EN] cyclist [SINCE v1.4.0].
+  OBJECT_CYCLIST = 4;
+  // human_powered_vehicle. 非机动车 [SINCE v1.4.0].
+  // [EN] human_powered_vehicle [SINCE v1.4.0].
+  OBJECT_HUMAN_POWERED_VEHICLE = 5;
+  // crowd. 人群 [SINCE v2.0.0].
+  // [EN] crowd [SINCE v2.0.0].
+  OBJECT_CROWD = 6;
+  // scenario. 长尾 [SINCE v2.2.0].
+  // [EN] scenario [SINCE v2.0.0].
+  OBJECT_SCENARIO = 7;
+  // algo. 算法仓 [SINCE v3.0.0].
+  OBJECT_ALGO = 8;
+  reserved 9, 10, 100, 101, 102, 103, 104, 105, 106, 107, 109;
+  // event. 事件.[SINCE v3.1.0].
+  // [EN] event.[SINCE v3.1.0].
+  OBJECT_EVENT = 11;
+}
+
+// 关联对象 [SINCE v2.1.0].
+// [EN] Associated objects [SINCE v2.1.0].
+message ObjectAssociation {
+  // 关联目标类型.
+  // [EN] Type of associated object.
+  ObjectType type = 1;
+  // 可选, 关联目标对象object_id, 如为空则与本对象一致.
+  // [EN] Optional, associated object with object_id; if it is empty, it is consistent with this object.
+  string object_id = 2;
+  // 可选, 关联关系类型 [SINCE v3.1.0].
+  // [EN] Type of association [SINCE v3.1.0].
+  string association_type = 3;
+}
+
+// VIPER平台支持事件规则类型 [SINCE v2.0.0].
+// [EN] VIPER event types. [SINCE v2.0.0].
+enum EventType {
+  // 未知.
+  // [EN] unknown.
+  EVENT_UNKNOWN = 0;
+  // 逗留事件.
+  // [EN] pedestrian stay event.
+  EVENT_PEDESTRIAN_STAY = 1;
+  // 可疑人员徘徊事件.
+  // [EN] pedestrian hover event.
+  EVENT_PEDESTRIAN_HOVER = 2;
+  // 越线事件.
+  // [EN] pedestrian cross line event.
+  EVENT_PEDESTRIAN_CROSS_LINE = 3;
+  // 区域入侵事件.
+  // [EN] pedestrian invade event.
+  EVENT_PEDESTRIAN_INVADE = 4;
+  // 违停事件.
+  // [EN] vehicle park event.
+  EVENT_VEHICLE_PARK = 5;
+  // 人群过密事件.
+  // [EN] crowd over density event.
+  EVENT_CROWD_DENSITY = 50;
+  // 人群滞留事件.
+  // [EN] crowd strand event.
+  EVENT_CROWD_STRAND = 51;
+  // 人群逆行事件 [SINCE v3.2.0].
+  // [EN] crowd retrograde event [SINCE v3.2.0].
+  EVENT_CROWD_RETROGRADE = 52;
+  // 人群聚集事件 [SINCE v3.2.0].
+  // [EN] crowd congregate event [SINCE v3.2.0].
+  EVENT_CROWD_CONGREGATE = 53;
+  // 人群分散事件 [SINCE v3.2.0].
+  // [EN] crowd scatter event [SINCE v3.2.0].
+  EVENT_CROWD_SCATTER = 54;
+  // 人群速度 [EXPERIMENTAL].
+  // [EN] crowd speed [EXPERIMENTAL].
+  EVENT_CROWD_SPEED = 55;
+  // 人群跨线事件 [SINCE v3.2.0].
+  // [EN] crowd crossline event [SINCE v3.2.0].
+  EVENT_CROWD_CROSSLINE = 56;
+  // 人群社交距离事件 [SINCE v3.2.0].
+  // [EN] crowd social distance event [SINCE v3.2.0].
+  EVENT_CROWD_SOCIAL_DISTANCE = 58;
+  // 人群入侵事件 [SINCE v3.2.0].
+  // [EN] crowd intrusion event [SINCE v3.2.0].
+  EVENT_CROWD_INTRUSION = 59;
+}
+
+// VIPER平台事件任务规则 [SINCE v2.2.0].
+// [EN] VIPER event rule [SINCE v2.2.0].
+message EventRule {
+  // 事件类型.
+  // [EN] Event type.
+  EventType type = 1;
+  // 规则ID.
+  // [EN] Rule ID.
+  string rule_id = 2;
+  // ROI区域，两点表示直线，多点表示多边形.
+  // [EN] ROI zone, two points represent lines, and many points represent polygons.
+  BoundingPoly roi = 3;
+  // 可选, 事件持续时长，单位为毫秒
+  // [EN] Optional, event duration, with the unit - millisecond.
+  int32 duration_ms = 4;
+  // 可选, 方向. 用于跨线事件. 此为非范化向量坐标(图像坐标系), 例如(-1,0)表示左, (1,0)表示右, (0,-1)表示上, (0,1)表示下, (1,1)表示右下, (0,0)表示不限定方向. 不填或置空表示业务不要求方向.
+  // [EN] Optional, direction. Used for cross-line events. This is a non-normalized vectorial coordinate (image coordinate system). For example (-1,0) means left, (1,0) means right, (0,-1) means upward side, (0,1) means lower side, (1,1) means lower right, (0,0) means unlimited direction. Blank indicates the task has no direction limitation.
+  Vector direction = 5;
+}
+
+// 事件状态 [SINCE v2.2.0].
+// [EN] Event status [SINCE v2.0.0].
+enum EventStatus {
+  // 未知
+  // [EN] unknown.
+  STATUS_UNKNOWN = 0;
+  // 事件开始
+  // [EN] event start.
+  STATUS_START = 1;
+  // 事件继续
+  // [EN] event continue.
+  STATUS_CONTINUE = 2;
+  // 事件结束
+  // [EN] event stop.
+  STATUS_STOP = 3;
+}
+
+// 事件 [SINCE v2.2.0].
+// [EN] event [SINCE v2.2.0].
+message Event {
+  // 规则ID, 仅在OBJECT_MULTI_PACH任务有效.
+  // [EN] rule ID, only valid in OBJECT_MULTI_PACH task.
+  string rule_id = 1;
+
+  // 事件状态, 仅在OBJECT_MULTI_PACH任务有效.
+  // [EN] event status, only valid in OBJECT_MULTI_PACH task.
+  EventStatus status = 2;
+}
+
+// 属性类型.
+// [EN] Attribute type.
+enum AttributeType {
+  // 判别问题, 对应的category与属性名相同, 对应的value为属性为真的置信度,
+  // 范围: [0.0, 1.0], 如smile: 0.8 [SINCE v3.2.0].
+  // [EN] For discrimination problems, the corresponding category is the same as the attribute name, and the corresponding value is the confidence that the attribute is true,
+  // range: [0.0, 1.0], such as smile: 0.8 [SINCE v3.2.0].
+  DISCRIMINATION = 0;
+  // 回归问题, 对应category与属性名相同, 对应value为取值, 如age: 25 [SINCE v3.2.0].
+  // [EN] For regression problems, the corresponding category is the same as the attribute name, and the corresponding value is the value, such as age: 25 [SINCE v3.2.0].
+  REGRESSION = 1;
+  // 分类问题, 对应category为可能取值中置信度最高的分类名称, 对应value
+  // 为置信度, 范围: [0.0, 1.0] [SINCE v3.2.0].
+  // [EN] For classification problems, the corresponding category is the classification name with the highest confidence among possible values, and the corresponding value is the confidence, range: [0.0, 1.0] [SINCE v3.2.0].
+  CLASSIFICATION = 2;
+}
+
+// 带分数的属性类型.
+// [EN] Attribute with score.
+message AttributeWithScore {
+  // 属性类型 [SINCE v3.2.0].
+  // [EN] Attribute type [SINCE v3.2.0].
+  AttributeType type = 1;
+  // 属性分类取值 [SINCE v3.2.0].
+  // [EN] Attribute category value [SINCE v3.2.0].
+  string category = 2;
+  // 属性置信度或回归问题取值 [SINCE v3.2.0].
+  // [EN] Attribute confidence value or regression problem value [SINCE v3.2.0].
+  float value = 3;
+  // 属性对应的对象所在位置 [SINCE v3.2.0].
+  // [EN] The position of the object corresponding to the attribute [SINCE v3.2.0].
+  BoundingPoly roi = 4;
+}
+
+// 算法仓应用生成的OBJECT_EVENT注释 [SINCE v3.1.0].
+// [EN] OBJECT_EVENT annotation produced by Algo application [SINCE v3.1.0].
+message EventObject {
+  // 规则ID.
+  // [EN] rule ID.
+  string rule_id = 1;
+  // 事件类型 [SINCE v3.1.0].
+  // [EN] Event type [SINCE v3.1.0].
+  string event_type = 2;
+}
+
+// 长尾类型 [SINCE v2.2.0] [DEPRECATED].
+// [EN] Scenario type [SINCE v2.2.0] [DEPRECATED].
+enum ScenarioType {
+  //未知
+  // [EN] unknown.
+  ST_UNKNOWN = 0;
+  // 违规占道经营.
+  // [EN] illegal operation.
+  ST_STALL = 1;
+  // 烟火.
+  // [EN] file.
+  ST_FIRE = 2;
+  // 臧疆标语检测.
+  // [EN] logan of XiZang and XinJiang.
+  ST_SLOGAN = 3;
+  // 景观灯损坏.
+  // [EN] landscape lamp damaged.
+  ST_LANDSCAPE_LAMP = 4;
+  // 工地堆放不当.
+  // [EN] clutter.
+  ST_CLUTTER = 5;
+  // 路面清洁（车辆抛洒）.
+  // [EN] road clean.
+  ST_ROAD_CLEAN = 6;
+  // 工地泥土覆盖.
+  // [EN] soil.
+  ST_SOIL = 7;
+  // 打包垃圾检测.
+  // [EN] packaging garbage.
+  ST_GARBAGE = 8;
+  // 共享单车分类.
+  // [EN] shared bicycle classification.
+  ST_SHARED_BICYCLE = 9;
+  // 共享单车乱序摆放.
+  // [EN] shared bicycles in disorder.
+  ST_SHARED_BICYCLE_MISORDER = 10;
+}
+
+// 所有被track的对象信息 [SINCE v1.3.0].
+// [EN] All tracked object information [SINCE v2.2.0].
+message PreviewObject {
+  // 对象类型, 算法仓输出的算法对象(包括主算法对象)类型都为 OBJECT_ALGO, 真实对象类型在 algo.object_type 字段.
+  // [EN] Object type, all algo object type(include main algorithm object type) is OBJECT_ALGO, real object type is algo.object_type.
+  ObjectType object_type = 1;
+  // 对象ID [DEPRECATED].
+  // [EN] Track type [DEPRECATED].
+  int64 track_id = 2;
+  // 可选，对象ID [SINCE v2.2.0].
+  // [EN] Optional, object id [SINCE v2.2.0].
+  string object_id = 8;
+  // 对象边界.
+  // [EN] Object boundary.
+  BoundingPoly bounding = 3;
+  // 对象置信度.
+  // [EN] Object quality.
+  float quality = 4;
+  // 可选, 人脸对象角度, 仅在OBJECT_FACE有效.
+  // [EN] Object angle, only valid in OBJECT_FACE.
+  Angle angle = 5;
+
+  // 可选，属性信息 [SINCE v2.2.0].
+  // [EN] Optional, object attribute information [SINCE v2.2.0].
+  map<string, string> attributes = 6;
+
+  // 目标跟踪状态 [SINCE v3.1.0].
+  // [EN] Object tracking status [SINCE v3.1.0].
+  TrackEvent track_event = 9;
+  // 可选, 关联对象列表, 如其中object_id为空, 则关联对象object_id与本对象object_id一致 [SINCE v3.1.0].
+  // [EN] Optional, The list of associated objects, if the object_id is null,
+  // the object_id of the associated object is consistent with the object_id of this object [SINCE v3.1.0].
+  repeated ObjectAssociation associations = 12;
+
+  // 可选，触发的事件信息, 仅在OBJECT_MULTI_PACH任务有效 [SINCE v2.2.0].
+  // [EN] Optional, triggered event information, only valid in OBJECT_MULTI_PACH task [SINCE v2.2.0].
+  repeated Event events = 7;
+  // 可选，人群信息 [SINCE v2.2.0].
+  // [EN] Optional, crowd information [SINCE v2.2.0].
+  CrowdObject crowd = 20;
+  // 可选，长尾信息 [SINCE v2.2.0] [DEPRECATED].
+  // [EN] Optional, Scenario object information [SINCE v2.2.0] [DEPRECATED].
+  ScenarioObject scenario = 21;
+  // 可选, 算法仓信息 [SINCE v3.0.0].
+  // [EN] Optional, algo [SINCE v3.0.0].
+  AlgoObject algo = 22;
+  // 算法仓应用生成的OBJECT_EVENT注释 [SINCE v3.1.0].
+  // [EN] OBJECT_EVENT annotation produced by Algo application [SINCE v3.1.0].
+  EventObject event = 23;
+}
+
+// 长尾信息 [SINCE v2.2.0] [DEPRECATED].
+// [EN] Scenario object information [SINCE v2.2.0] [DEPRECATED].
+message ScenarioObject {
+  // 长尾类型.
+  // [EN] Scenario type.
+  ScenarioType type = 1;
+}
+
+// 人群跨线信息 [EXPERIMENTAL].
+// [EN] crowd cross line information [EXPERIMENTAL].
+message CrossLineObject {
+  // ROI ID.
+  // [EN] ROI ID.
+  int32 roi_id = 1;
+  // 人群ROI区域.
+  // [EN] ROI areas of crowd.
+  BoundingPoly roi = 2;
+  // 进入流数.
+  // [EN] In count.
+  int32 in_count = 3;
+  // 出人流数.
+  // [EN] Cout count.
+  int32 out_count = 4;
+}
+
+// 人群流动(聚集/分散)方向 [EXPERIMENTAL].
+// [EN] crowd congregate or scatter direction [EXPERIMENTAL].
+enum CrowdDirection {
+  // 位置方向.
+  CROWD_UNKNOWN = 0;
+  // 同心.
+  // [EN] crowd move to same concentric.
+  CONCENTRIC = 1;
+  // 同向.
+  // [EN] crowd move to same direction.
+  SAME_DIRECTION = 2;
+}
+
+// 人群流动(聚集/分散)分析结果 [EXPERIMENTAL].
+// [EN] crowd congregate or scatter analyze result [EXPERIMENTAL].
+message CrowdMovementObject {
+  // 人群流动分析ROI区域 ID.
+  // [EN] Roi id.
+  int32 roi_id = 1;
+  // 人群ROI区域.
+  // [EN] ROI areas of crowd.
+  BoundingPoly roi = 2;
+  // 人群中的小群体, 聚集/分散方向.
+  // [EN] Move direction of evey small group in crowd group.
+  repeated CrowdDirection directions = 3;
+}
+
+// 人群流动速度 [EXPERIMENTAL].
+// [EN] crowd speed analyze result [EXPERIMENTAL].
+message CrowdSpeedObject {
+  // 人群流动速度分析ROI区域 ID.
+  // [EN] Roi id.
+  int32 roi_id = 1;
+  // 人群ROI区域.
+  // [EN] ROI areas of crowd.
+  BoundingPoly roi = 2;
+  // 人体速度信息.
+  // [EN] crowd move speed.
+  float speed = 3;
+}
+
+// 人群密度信息 [SINCE v2.0.0].
+// [EN] crowd density information [SINCE v2.0.0].
+message CrowdObject {
+  // 行人数量.
+  // [EN] crowd quantity.
+  int64 quantity = 1;
+  // 密度图大小.
+  // [EN] size of density map.
+  Size density_size = 2;
+  // 密度分布，矩阵，每个点代表相应区域的人群密度
+  // [EN] density map.
+  bytes density = 3;
+
+  reserved 4 to 7;
+  reserved "cross_line_objects", "congregate_objects", "scatter_objects", "speed_objects";
+
+  // 人群中的单人信息 [SINCE v3.2.0].
+  // [EN] information for single person in the crowd [SINCE v3.2.0].
+  message HeadTargetInfo {
+    // 人头点坐标 [SINCE v3.2.0].
+    // [EN] The coordinates indicate the head's position [SINCE v3.2.0].
+    Vector coordinate = 1;
+    // 人头框 [SINCE v3.2.0].
+    // [EN] The rectangle bounding indicate the head's position [SINCE v3.2.0].
+    BoundingPoly rectangle = 2;
+  }
+
+  // 人群人头点实时分析结果 [SINCE v3.2.0].
+  // crowd head target realtime analysis results [SINCE v3.2.0].
+  message HeadTargetsAnnotation {
+    // 人群中的单人信息 [SINCE v3.2.0].
+    // [EN] information for single person in the crowd [SINCE v3.2.0].
+    repeated HeadTargetInfo head_targets = 1;
+  }
+
+  // 人群人头点实时分析结果 [SINCE v3.2.0].
+  // crowd head target realtime analysis results [SINCE v3.2.0].
+  HeadTargetsAnnotation full_head_targets = 9;
+}
+
+// 算法仓信息 [SINCE v3.0.0].
+message AlgoObject {
+  // 算法应用名称.
+  // [EN] algo app name.
+  string app_name = 1;
+  // 算法应用版本.
+  // [EN] algo app version.
+  int32 app_version = 2;
+  // 目标自定义类型.
+  // [EN] custom object type.
+  string object_type = 3;
+  // 目标自定义对象版本.
+  // [EN] custom object version.
+  int32 object_version = 4;
+  // 可选, JSON编码的自定义数据.
+  // [EN] Optional, json encoded data.
+  string data = 5;
+}
+
+// 叠框信息 [SINCE v1.4.0]
+// [EN] preview information [SINCE v1.4.0]
+message PreviewInfo {
+  // 相对视频流的时间戳
+  // [EN] timestamp.
+  int64 timestamp = 1;
+  // 跟踪对象信息
+  // [EN] Tracking object information.
+  repeated PreviewObject objects = 2;
+  // 可选，事件规则
+  // [EN] Optional, event rule.
+  repeated EventRule rules = 3;
+}

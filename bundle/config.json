@@ -1,0 +1,10 @@
+{
+    "access_key":"GYFvupoTYDVXtwjreoYyTqEm",
+    "secret_key": "lWvTsEKTMAsfW0Z0uypoXGcl",
+    "zone":"7uq3c5i9c0e8",
+    "camera":"7uq3c3ymlf5v",
+    "foudary_addr":"172.20.26.82:30443",
+    "websocket_addr": "wss://172.20.26.82:30443/engine/rtsp-preview/rtsp-over-ws",
+    "rtsp_addr": "rtsp://10.224.0.33:554",
+    "port": 8099
+}

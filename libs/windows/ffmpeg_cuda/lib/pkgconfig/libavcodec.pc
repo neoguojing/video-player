@@ -1,0 +1,14 @@
+prefix=/local64/bin-video/ffmpegSHARED
+exec_prefix=${prefix}
+libdir=/local64/bin-video/ffmpegSHARED/lib
+includedir=/local64/bin-video/ffmpegSHARED/include
+
+Name: libavcodec
+Description: FFmpeg codec library
+Version: 60.37.100
+Requires: 
+Requires.private: libswresample >= 4.13.100, libavutil >= 58.36.101
+Conflicts:
+Libs: -L${libdir}  -lavcodec 
+Libs.private: -LC:/media-autobuild_suite/local64/lib -lvpx -lm -lm -lpthread -LC:/media-autobuild_suite/local64/lib -lvpx -lm -lm -lpthread -LC:/media-autobuild_suite/local64/lib -lvpx -lm -lm -lpthread -LC:/media-autobuild_suite/local64/lib -lvpx -lm -lm -lpthread -lm -latomic -llzma -LC:/media-autobuild_suite/local64/lib -ldav1d -LC:/media-autobuild_suite/local64/lib -laom -lm -LC:/media-autobuild_suite/local64/lib -lfdk-aac -lmp3lame -lm -LC:/media-autobuild_suite/local64/lib -lopus -lm -LC:/media-autobuild_suite/local64/lib -lvorbis -lm -LC:/media-autobuild_suite/local64/lib -logg -LC:/media-autobuild_suite/local64/lib -lvorbisenc -LC:/media-autobuild_suite/local64/lib -lvorbis -lm -logg -LC:/media-autobuild_suite/local64/lib -lx264 -LC:/media-autobuild_suite/local64/lib -lx265 -LC:/media-autobuild_suite/msys64/mingw64/lib -lstdc++ -lgcc -lgcc -lole32 -luser32 -LC:/media-autobuild_suite/msys64/mingw64/lib -lz -ldl
+Cflags: -I${includedir}

@@ -1,0 +1,14 @@
+prefix=/local64/bin-video/ffmpegSHARED
+exec_prefix=${prefix}
+libdir=/local64/bin-video/ffmpegSHARED/lib
+includedir=/local64/bin-video/ffmpegSHARED/include
+
+Name: libavformat
+Description: FFmpeg container format library
+Version: 60.20.100
+Requires: 
+Requires.private: libavcodec >= 60.37.100, libswresample >= 4.13.100, libavutil >= 58.36.101
+Conflicts:
+Libs: -L${libdir}  -lavformat 
+Libs.private: -lm -latomic -lbz2 -lgmp -LC:/media-autobuild_suite/msys64/mingw64/lib -lz -lsecur32 -lws2_32
+Cflags: -I${includedir}

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8"/>
+    <meta http-equiv="X-UA-Compatible" content="IE=edge"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>WebSocket Test</title>
+    <style>
+        /* 添加样式，设置 textarea 的宽度和高度 */
+        textarea {
+            width: 400px;
+            height: 150px;
+        }
+
+        /* 添加样式，设置右侧区域宽度 */
+        #output {
+            float: right;
+            width: 600px;
+            height: 700px;
+            overflow-y: auto; /* 添加滚动条 */
+        }
+    </style>
+</head>
+<body>
+<div id="output"></div>
+
+<!-- Open Window -->
+<div>
+      <textarea id="openWindowInput">
+{
+        "wsurl": "wss://10.9.19.159:30443/engine/rtsp-preview/rtsp-over-ws?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ1SzZRZFVabUxDQTlrSGxhRElRNEZ1UE0iLCJuYmYiOjE3MDYxNzYxOTgsImV4cCI6MTcwNjE4MzM5OH0.89SJ8F3h8gOnTqVgdCKWRdKl-aqXG7NBSrxDbvc9FRU",
+    "rtspurl": "rtsp://10.224.0.212:554/10002024012307430237601",
+    "x": 900,
+    "y": 50,
+    "width": 720,
+    "height": 480,
+    "windowID":"1234567",
+    "command":"open-window"
+}
+    </textarea
+    >
+    <button onclick="openWindow()">Open Window</button>
+</div>
+
+<!-- Close Window -->
+<div>
+      <textarea id="closeWindowInput">
+{
+    "windowID": "1234567",
+    "command": "close-window"
+}
+    </textarea
+    >
+    <button onclick="closeWindow()">Close Window</button>
+</div>
+
+<!-- Move Window -->
+<div>
+      <textarea id="moveWindowInput">
+{
+    "x": 920,
+    "y": 200,
+    "width": 900,
+    "height": 600,
+    "windowID":"1234567",
+    "command":"move-window"
+}
+    </textarea
+    >
+    <button onclick="moveWindow()">Move Window</button>
+</div>
+
+<!-- Hide Window -->
+<div>
+      <textarea id="hideWindowInput">
+{"windowID": "1234567", "command": "hide-window"}
+    </textarea
+    >
+    <button onclick="hideWindow()">Hide Window</button>
+</div>
+
+<!-- Show Window -->
+<div>
+      <textarea id="showWindowInput">
+    {
+     "windowID": "1234567",
+    "wsurl": "wss://10.9.19.159:30443/engine/rtsp-preview/rtsp-over-ws?jwt=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJ1SzZRZFVabUxDQTlrSGxhRElRNEZ1UE0iLCJuYmYiOjE3MDYxNzYxOTgsImV4cCI6MTcwNjE4MzM5OH0.89SJ8F3h8gOnTqVgdCKWRdKl-aqXG7NBSrxDbvc9FRU",
+    "rtspurl": "rtsp://10.224.0.212:554/10002024012307430237601",
+    "x": 900,
+    "y": 50,
+    "width": 720,
+    "height": 480,
+     "command": "show-window"
+     }
+    </textarea
+    >
+    <button onclick="showWindow()">Show Window</button>
+</div>
+
+<!-- Show Window -->
+<div>
+      <textarea id="closeAllWindowsInput">
+    {
+     "command": "close-all-windows"
+     }
+    </textarea
+    >
+    <button onclick="closeAllWindows()">Close All Window</button>
+</div>
+
+<div id="draggableWindow"></div>
+
+<script>
+    const socket = new WebSocket("ws://10.151.125.4:8080/ws");
+
+    socket.onopen = function (event) {
+        console.log("WebSocket connection opened:", event);
+        displayMessage(event.data);
+
+        // 在连接打开后发送心跳消息
+        sendHeartbeat();
+    };
+
+    // 发送心跳消息的函数
+    function sendHeartbeat() {
+        const heartbeatMessage = {
+            command: "heartbeat",
+            // 其他心跳消息字段可以根据需要添加
+        };
+
+        // 将 JSON 格式的心跳消息转换为字符串并发送
+        socket.send(JSON.stringify(heartbeatMessage));
+
+        // 设置定时器，定期发送心跳消息
+        setInterval(function () {
+            socket.send(JSON.stringify(heartbeatMessage));
+            console.log("WebSocket send heartbeat:", event.data);
+            displayMessage(heartbeatMessage);
+        }, 1000); // 1秒发送一次，可以根据需求调整间隔时间
+    }
+
+    socket.onmessage = function (event) {
+        console.log("WebSocket message received:", event.data);
+        displayMessage(event.data);
+    };
+
+    socket.onclose = function (event) {
+        console.log("WebSocket connection closed:", event);
+        displayMessage(event);
+    };
+
+    function displayMessage(message) {
+        const outputDiv = document.getElementById("output");
+        const p = document.createElement("p");
+        p.textContent = message;
+        outputDiv.appendChild(p);
+
+        // 滚动到底部
+        outputDiv.scrollTop = outputDiv.scrollHeight;
+    }
+
+    // 添加按钮点击事件处理逻辑
+    function openWindow() {
+        const commandInput = document.getElementById("openWindowInput");
+        const command = commandInput.value;
+        sendCommand(command);
+    }
+
+    function closeWindow() {
+        const commandInput = document.getElementById("closeWindowInput");
+        const command = commandInput.value;
+        sendCommand(command);
+    }
+
+    function moveWindow() {
+        const commandInput = document.getElementById("moveWindowInput");
+        const command = commandInput.value;
+        sendCommand(command);
+    }
+
+    function hideWindow() {
+        const commandInput = document.getElementById("hideWindowInput");
+        const command = commandInput.value;
+        sendCommand(command);
+    }
+
+    function showWindow() {
+        const commandInput = document.getElementById("showWindowInput");
+        const command = commandInput.value;
+        sendCommand(command);
+    }
+
+    function closeAllWindows() {
+        const commandInput = document.getElementById("closeAllWindowsInput");
+        const command = commandInput.value;
+        sendCommand(command);
+    }
+
+    // 发送命令到服务器
+    function sendCommand(command) {
+        socket.send(command);
+    }
+
+    const draggableWindow = document.getElementById('draggableWindow');
+    let isDragging = false;
+    let offsetX, offsetY;
+
+    draggableWindow.addEventListener('mousedown', (event) => {
+        isDragging = true;
+        offsetX = event.clientX - draggableWindow.getBoundingClientRect().left;
+        offsetY = event.clientY - draggableWindow.getBoundingClientRect().top;
+    });
+
+    document.addEventListener('mousemove', (event) => {
+        if (isDragging) {
+            const x = event.clientX - offsetX;
+            const y = event.clientY - offsetY;
+
+            draggableWindow.style.left = `${x}px`;
+            draggableWindow.style.top = `${y}px`;
+        }
+    });
+
+    document.addEventListener('mouseup', () => {
+        isDragging = false;
+    });
+
+    var windowX = window.screenX;
+    var windowY = window.screenY;
+
+    setInterval(function() {
+        if (window.screenX !== windowX || window.screenY !== windowY) {
+            // 窗口位置发生变化
+            console.log("窗口位置已变化");
+            console.log("窗口位置：", windowX, windowY);
+            // 更新窗口位置
+            windowX = window.screenX;
+            windowY = window.screenY;
+        }
+    }, 100);
+
+    function handleWindowPositionChange() {
+        // var windowTop = window.screenY || window.screenTop || window.pageYOffset;
+        // var windowLeft = window.screenX || window.screenLeft || window.pageXOffset;
+
+        // console.log("窗口位置：", windowLeft, windowTop);
+
+        // 在这里执行您希望执行的其他操作
+    }
+
+    // 监听窗口滚动事件
+    window.addEventListener("scroll", handleWindowPositionChange);
+
+    // 监听窗口大小调整事件
+    window.addEventListener("resize", handleWindowPositionChange);
+</script>
+</body>
+</html>
